@@ -23,18 +23,50 @@
 #     this function terminates the program with error code 30
 # ==============================================================================
 write_matrix:
-
-    # Prologue
-
-
-
-
-
-
-
-
-
-    # Epilogue
-
-
+addi sp sp -32
+    sw ra 28(sp)
+    sw s0 24(sp)
+    sw s1 20(sp)
+    sw s2 16(sp)
+    sw s3 12(sp)
+    # Stack 0/4: binary dimensions. s0 fd, s1 data, s2 element count.
+    sw a2 0(sp)
+    sw a3 4(sp)
+    mv s1 a1
+    mul s2 a2 a3
+    li a1 1
+    jal fopen
+    li t0 -1
+    beq a0 t0 write_bad_open
+    mv s0 a0
+    mv a1 sp
+    li a2 2
+    li a3 4
+    jal fwrite
+    li t0 2
+    bne a0 t0 write_bad_write
+    mv a0 s0
+    mv a1 s1
+    mv a2 s2
+    li a3 4
+    jal fwrite
+    bne a0 s2 write_bad_write
+    mv a0 s0
+    jal fclose
+    bnez a0 write_bad_close
+    lw ra 28(sp)
+    lw s0 24(sp)
+    lw s1 20(sp)
+    lw s2 16(sp)
+    lw s3 12(sp)
+    addi sp sp 32
     jr ra
+write_bad_open:
+    li a0 27
+    j exit
+write_bad_close:
+    li a0 28
+    j exit
+write_bad_write:
+    li a0 30
+    j exit

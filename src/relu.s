@@ -13,26 +13,17 @@
 #     this function terminates the program with error code 36
 # ==============================================================================
 relu:
-    # Prologue
-
-
-loop_start:
-
-
-
-
-
-
-
-
-loop_continue:
-
-
-
-loop_end:
-
-
-    # Epilogue
-
-
+# a0 walks the array; a1 counts remaining elements; t0 holds one value.
+    bge zero a1 relu_bad_length
+relu_loop:
+    lw t0 0(a0)
+    bge t0 zero relu_next
+    sw zero 0(a0)
+relu_next:
+    addi a0 a0 4
+    addi a1 a1 -1
+    bnez a1 relu_loop
     jr ra
+relu_bad_length:
+    li a0 36
+    j exit

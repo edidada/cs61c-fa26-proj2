@@ -9,10 +9,10 @@
 #   None
 # =================================================================
 abs:
-    # Prologue
-
-    # PASTE HERE
-
-    # Epilogue
-
+# t0: pointed-to signed value. INT_MIN retains RV32 two's-complement bits.
+    lw t0 0(a0)
+    bge t0 zero abs_done
+    sub t0 zero t0
+    sw t0 0(a0)
+abs_done:
     jr ra
