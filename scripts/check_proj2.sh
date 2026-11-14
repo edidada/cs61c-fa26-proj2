@@ -2,6 +2,9 @@
 set -euo pipefail
 python3 - <<'PY'
 import random, unittest
+from pathlib import Path
+Path("test-src").mkdir(exist_ok=True)
+Path("test-src/ownership.s").write_text(".globl ownership\n.text\nownership:\n addi sp sp -16\n sw ra 12(sp)\n jal read_matrix\n jal free\n lw ra 12(sp)\n addi sp sp 16\n jr ra\n")
 from framework import AssemblyTest, _venus_default_args
 _venus_default_args.append('-mc')
 rng=random.Random(6102)
@@ -20,10 +23,10 @@ class Oracle(unittest.TestCase):
             t.call('matmul'); t.check_array(out,expected); t.check_array(aa,a); t.check_array(bb,b); t.execute()
         print('36 seeded rectangular signed-overflow products and input preservation passed')
     def test_read_ownership(self):
-        t=AssemblyTest(self,'read_matrix.s')
+        t=AssemblyTest(self,'../test-src/ownership.s'); t.include('read_matrix.s')
         t.input_read_filename('a0','../tests/read-matrix-1/input.bin')
         t.input_array('a1',t.array([0])); t.input_array('a2',t.array([0]))
-        t.call('read_matrix'); t.call('free'); t.execute()
+        t.call('ownership'); t.execute()
     def test_classifier_silent(self):
         t=AssemblyTest(self,'classify.s')
         for name in ['argmax','dot','matmul','read_matrix','relu','write_matrix']: t.include(name+'.s')
